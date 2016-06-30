@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections;
-using Utility;
 
-public class PersistObject : MonoBehaviour
+namespace mFrame.Utility
 {
-    void Awake()
+    public class PersistObject : MonoBehaviour
     {
-        UtilTools.SetDontDestroyOnLoad(gameObject);
-        //DontDestroyOnLoad(gameObject);
+        void Awake()
+        {
+            UtilTools.SetDontDestroyOnLoad(gameObject);
+        }
     }
 }

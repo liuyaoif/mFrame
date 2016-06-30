@@ -1,11 +1,12 @@
-﻿using System;
+﻿using mFrame.Log;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace Utility
+namespace mFrame.Utility
 {
     public class UtilTools
     {
@@ -20,7 +21,7 @@ namespace Utility
 
         public static float FrameToDuration(int frame)
         {
-            return frame * Time.fixedDeltaTime;
+            return frame * UnityEngine.Time.fixedDeltaTime;
         }
 
         public static void SetDontDestroyOnLoad(GameObject go)
