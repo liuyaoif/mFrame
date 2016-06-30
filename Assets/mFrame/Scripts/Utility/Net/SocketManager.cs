@@ -1,9 +1,14 @@
-using com.wanmei.mg002.protocol.protobuf;
 using System;
 using System.Net;
 
 namespace Utility
 {
+    public class WXMessage
+    {
+        public int msgCode;
+        public int seqId;
+    }
+
     public interface IResponseManager
     {
         void AddResponseCallBack(int seqId, SocketManager.OnResponse response);
@@ -129,8 +134,8 @@ namespace Utility
 
         private void SendHeartBeatReq()
         {
-            SocketMessage socketMsg = ProtobufUtility.CreateLinkRequest(LINK_MSG_CODE.HEART_BEAT_REQUEST);
-            Send(socketMsg, null);
+            //SocketMessage socketMsg = ProtobufUtility.CreateLinkRequest(LINK_MSG_CODE.HEART_BEAT_REQUEST);
+            //Send(socketMsg, null);
         }
         #endregion
 

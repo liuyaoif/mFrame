@@ -1,79 +1,82 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-public class ObjctLigmap : EditorWindow
+namespace Utility
 {
-    GameObject game;
-
-    [MenuItem("Tools/Rest_ColorQD")]
-    static void Rend()
+    public class ObjctLigmap : EditorWindow
     {
-        Renderer[] rends = Object.FindObjectsOfType<Renderer>();
-        for (int i = 0; i < rends.Length; i++)
+        GameObject game;
+
+        [MenuItem("Tools/Rest_ColorQD")]
+        static void Rend()
         {
-            Material[] maters = rends[i].sharedMaterials;
-            for (int j = 0; j < maters.Length; j++)
+            Renderer[] rends = Object.FindObjectsOfType<Renderer>();
+            for (int i = 0; i < rends.Length; i++)
             {
-                if (maters[j].HasProperty("_ColorQD"))
+                Material[] maters = rends[i].sharedMaterials;
+                for (int j = 0; j < maters.Length; j++)
                 {
-                    maters[j].SetFloat("_ColorQD", 1);
+                    if (maters[j].HasProperty("_ColorQD"))
+                    {
+                        maters[j].SetFloat("_ColorQD", 1);
+                    }
                 }
             }
         }
-    }
 
 
-    [MenuItem("Tools/SaveLightMap")]
-    static void OpneWind()
-    {
-        EditorWindow.CreateInstance<ObjctLigmap>().Show();
-    }
-
-
-    void OnGUI()
-    {
-        game = EditorGUILayout.ObjectField(game, typeof(GameObject), true) as GameObject;
-        if (GUILayout.Button("Set"))
+        [MenuItem("Tools/SaveLightMap")]
+        static void OpneWind()
         {
-            Save(game.GetComponentsInChildren<SaveLightmapToRenderer>());
-        }
-        if (GUILayout.Button("Res"))
-        {
-            Rem(game.GetComponentsInChildren<SaveLightmapToRenderer>());
+            EditorWindow.CreateInstance<ObjctLigmap>().Show();
         }
 
-    }
-    void Save(SaveLightmapToRenderer[] maps)
-    {
-        for (int i = 0; i < maps.Length; i++)
+
+        void OnGUI()
         {
-            GameObject game = maps[i].gameObject;
-            //GameObject.DestroyImmediate(maps[i]);
-            maps[i].SaveLmInfo();
-
-
-            GameObject go = PrefabUtility.GetPrefabParent(game) as GameObject;
-            PrefabUtility.ReplacePrefab(game, go);
+            game = EditorGUILayout.ObjectField(game, typeof(GameObject), true) as GameObject;
+            if (GUILayout.Button("Set"))
+            {
+                Save(game.GetComponentsInChildren<SaveLightmapToRenderer>());
+            }
+            if (GUILayout.Button("Res"))
+            {
+                Rem(game.GetComponentsInChildren<SaveLightmapToRenderer>());
+            }
 
         }
-    }
-    void Rem(SaveLightmapToRenderer[] maps)
-    {
-        for (int i = 0; i < maps.Length; i++)
+        void Save(SaveLightmapToRenderer[] maps)
         {
-            GameObject game = maps[i].gameObject;
-            GameObject.DestroyImmediate(maps[i]);
-            //maps[i].SaveLmInfo();
-            //SerializedObject ser = new SerializedObject(game);
-            //ser.ApplyModifiedProperties();
-            //PrefabUtility.MergeAllPrefabInstances(maps[i].gameObject);
-            //PropertyModification[] info=  PrefabUtility.GetPropertyModifications(maps[i].gameObject);
-            //PrefabUtility.SetPropertyModifications(PrefabUtility.GetPrefabParent(maps[i].gameObject), info);
+            for (int i = 0; i < maps.Length; i++)
+            {
+                GameObject game = maps[i].gameObject;
+                //GameObject.DestroyImmediate(maps[i]);
+                maps[i].SaveLmInfo();
 
-            GameObject go = PrefabUtility.GetPrefabParent(game) as GameObject;
-            PrefabUtility.ReplacePrefab(game, go);
-            //PrefabUtility.ResetToPrefabState(game);
-            //Debug.Log(go.GetComponents<MonoBehaviour>().Length);
+
+                GameObject go = PrefabUtility.GetPrefabParent(game) as GameObject;
+                PrefabUtility.ReplacePrefab(game, go);
+
+            }
+        }
+        void Rem(SaveLightmapToRenderer[] maps)
+        {
+            for (int i = 0; i < maps.Length; i++)
+            {
+                GameObject game = maps[i].gameObject;
+                GameObject.DestroyImmediate(maps[i]);
+                //maps[i].SaveLmInfo();
+                //SerializedObject ser = new SerializedObject(game);
+                //ser.ApplyModifiedProperties();
+                //PrefabUtility.MergeAllPrefabInstances(maps[i].gameObject);
+                //PropertyModification[] info=  PrefabUtility.GetPropertyModifications(maps[i].gameObject);
+                //PrefabUtility.SetPropertyModifications(PrefabUtility.GetPrefabParent(maps[i].gameObject), info);
+
+                GameObject go = PrefabUtility.GetPrefabParent(game) as GameObject;
+                PrefabUtility.ReplacePrefab(game, go);
+                //PrefabUtility.ResetToPrefabState(game);
+                //Debug.Log(go.GetComponents<MonoBehaviour>().Length);
+            }
         }
     }
 }

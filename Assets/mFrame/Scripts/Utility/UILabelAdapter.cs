@@ -1,19 +1,27 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[DisallowMultipleComponent]
-public class UILabelAdapter : MonoBehaviour
+namespace Utility
 {
-    public int m_textId;
-    void Awake()
+    public class UILabel
     {
-        if (!TextManager.Instance.enableAdapter)
-        {
-            return;
-        }
-
-        UILabel label = GetComponent<UILabel>();
-        label.text = TextManager.Instance.GetContent(m_textId);
+        public string text { set; get; }
     }
 
+    [DisallowMultipleComponent]
+    public class UILabelAdapter : MonoBehaviour
+    {
+        public int m_textId;
+        void Awake()
+        {
+            if (!TextManager.Instance.enableAdapter)
+            {
+                return;
+            }
+
+            UILabel label = GetComponent<UILabel>();
+            label.text = TextManager.Instance.GetContent(m_textId);
+        }
+
+    }
 }

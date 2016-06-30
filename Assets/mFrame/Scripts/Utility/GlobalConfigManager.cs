@@ -50,7 +50,8 @@ public class GlobalConfigManager : Singleton<GlobalConfigManager>
         get { return m_isUseBundle; }
     }
     public void onConfigLoaded(string content)
-    {
+    {      
+        /*
         try
         {
             XMLParser xmlParser = new XMLParser();
@@ -141,5 +142,6 @@ public class GlobalConfigManager : Singleton<GlobalConfigManager>
             LogManager.Instance.LogError(exp.ToString());
             Application.Quit();
         }
+        */
     }
 }

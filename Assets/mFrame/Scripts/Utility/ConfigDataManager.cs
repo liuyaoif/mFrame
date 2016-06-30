@@ -115,7 +115,8 @@ public sealed class ConfigDataManager : Singleton<ConfigDataManager>
                     string data = null;
                     if (type == typeof(string) || type.IsArray)
                     {
-                        data = curLineJson.GetStringValue(propName);
+                        JsonData json =curLineJson[propName];
+                        data = json.ToJson();
                     }
                     else
                     {
@@ -190,7 +191,7 @@ public sealed class ConfigDataManager : Singleton<ConfigDataManager>
     {
         JsonData rootNode = JsonMapper.ToObject(textAsset.text);
         Dictionary<int, IConfigData> singleConfigDict = new Dictionary<int, IConfigData>();
-        Type configDataType = ConfigMapper.GetMapperDict()[textAsset.name];
+        Type configDataType = null;// ConfigMapper.GetMapperDict()[textAsset.name];
 
         //Every line.
         for (int lineIdx = 0; lineIdx < rootNode.Count; lineIdx++)

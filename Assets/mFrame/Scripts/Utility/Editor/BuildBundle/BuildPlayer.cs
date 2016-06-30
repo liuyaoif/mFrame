@@ -7,6 +7,19 @@ using Utility;
 
 public class BuildPlayer
 {
+    public class XMLNode
+    {
+        public XMLNode GetNode(string name)
+        {
+            return null;
+        }
+
+        public string GetValue(string name)
+        {
+            return "";
+        }
+    }
+
     //得到工程中所有场景名称
     static string[] SCENES = FindEnabledEditorScenes();
 
@@ -22,9 +35,9 @@ public class BuildPlayer
             content += line;
         }
 
-        XMLParser xmlParser = new XMLParser();
-        XMLNode rootNode = xmlParser.Parse(content);
-        return rootNode;
+        //XMLParser xmlParser = new XMLParser();
+        //XMLNode rootNode = xmlParser.Parse(content);
+        return new XMLNode();
     }
 
     public static void Build(BuildTarget target, bool isApk = true)

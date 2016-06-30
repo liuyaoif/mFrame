@@ -185,19 +185,18 @@ namespace Utility
         private static string m_bannedWorlds;
         public static bool IsBannedWord(string rolename)
         {
-            if (string.IsNullOrEmpty(m_bannedWorlds))
-            {
-                Dictionary<int, IConfigData> gameBanWord = ConfigDataManager.Instance.GetConfigDataDictionary(typeof(Excel2Json.BanWordListConfig));
-                foreach (var key in gameBanWord)
-                {
-                    Excel2Json.BanWordListConfig data = (Excel2Json.BanWordListConfig)key.Value;
-                    m_bannedWorlds += "|" + data.banWord;
-                }
+            //if (string.IsNullOrEmpty(m_bannedWorlds))
+            //{
+            //    Dictionary<int, IConfigData> gameBanWord = ConfigDataManager.Instance.GetConfigDataDictionary(typeof(Excel2Json.BanWordListConfig));
+            //    foreach (var key in gameBanWord)
+            //    {
+            //        Excel2Json.BanWordListConfig data = (Excel2Json.BanWordListConfig)key.Value;
+            //        m_bannedWorlds += "|" + data.banWord;
+            //    }
 
-                m_bannedWorlds = m_bannedWorlds.Substring(1);
-                m_bannedWorlds = m_bannedWorlds.ToLower();
-            }
-
+            //    m_bannedWorlds = m_bannedWorlds.Substring(1);
+            //    m_bannedWorlds = m_bannedWorlds.ToLower();
+            //}
 
             rolename = rolename.Replace(" ", "");
             MatchCollection chinesStr = Regex.Matches(rolename, @"[\u4e00-\u9fa5]");

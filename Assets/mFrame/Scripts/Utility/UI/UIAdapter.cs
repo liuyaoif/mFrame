@@ -1,64 +1,71 @@
 ﻿using Utility;
 using UnityEngine;
 
-public class UIAdapter : Entity
+namespace Utility
 {
-    public UIWidget m_targetWidget;
-    private bool m_isDirty = false;
-
-    public bool IsDirty
+    public class UIWidget : MonoBehaviour
     {
-        get { return m_isDirty; }
-        set { m_isDirty = value; }
     }
 
-    void OnEnable()
+    public class UIAdapter : Entity
     {
-        IsDirty = true;
-    }
+        public UIWidget m_targetWidget;
+        private bool m_isDirty = false;
 
-    void Awake()
-    {
-        IsDirty = true;
-    }
-
-    //void Update()
-    protected override void RenderUpdate()
-    {
-        if (!IsDirty || m_targetWidget == null)
+        public bool IsDirty
         {
-            return;
+            get { return m_isDirty; }
+            set { m_isDirty = value; }
         }
 
-        if (m_targetWidget == null)
+        void OnEnable()
         {
-            AdaptRenderQueue(30000);//UI top.
-        }
-        else if (m_targetWidget.drawCall != null)
-        {
-            AdaptRenderQueue(m_targetWidget.drawCall.finalRenderQueue);
-        }
-    }
-
-    private void AdaptRenderQueue(int queue)
-    {
-        if (GetComponent<Renderer>() != null && GetComponent<Renderer>().sharedMaterial != null)
-        {
-            GetComponent<Renderer>().sharedMaterial.renderQueue = queue;
+            IsDirty = true;
         }
 
-        Renderer[] rendererList = gameObject.GetComponentsInChildren<Renderer>();
-        for (int i = 0; i < rendererList.Length; i++)
+        void Awake()
         {
-            Renderer curRenderer = rendererList[i];
-            curRenderer.sharedMaterial.renderQueue = queue;
+            IsDirty = true;
         }
 
-        float zOffset = m_targetWidget.transform.position.z - 1;
-        Vector3 tempPos = transform.position;
-        tempPos.z = zOffset;
-        transform.position = tempPos;
+        //void Update()
+        protected override void RenderUpdate()
+        {
+            if (!IsDirty || m_targetWidget == null)
+            {
+                return;
+            }
 
-        m_isDirty = false;
-    }
-}//RendererAdapter
+            if (m_targetWidget == null)
+            {
+                AdaptRenderQueue(30000);//UI top.
+            }
+            //else if (m_targetWidget.drawCall != null)
+            //{
+            //    AdaptRenderQueue(m_targetWidget.drawCall.finalRenderQueue);
+            //}
+        }
+
+        private void AdaptRenderQueue(int queue)
+        {
+            if (GetComponent<Renderer>() != null && GetComponent<Renderer>().sharedMaterial != null)
+            {
+                GetComponent<Renderer>().sharedMaterial.renderQueue = queue;
+            }
+
+            Renderer[] rendererList = gameObject.GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < rendererList.Length; i++)
+            {
+                Renderer curRenderer = rendererList[i];
+                curRenderer.sharedMaterial.renderQueue = queue;
+            }
+
+            float zOffset = m_targetWidget.transform.position.z - 1;
+            Vector3 tempPos = transform.position;
+            tempPos.z = zOffset;
+            transform.position = tempPos;
+
+            m_isDirty = false;
+        }
+    }//RendererAdapter
+}

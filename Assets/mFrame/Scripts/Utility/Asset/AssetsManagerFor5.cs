@@ -141,28 +141,28 @@ namespace Utility
         {
             LoadResourceTask.OnWwwLoaded onConfigLoaded = (string wwwText) =>
             {
-                XMLParser xmlParser = new XMLParser();
-                XMLNode rootNode = xmlParser.Parse(wwwText);
+                //XMLParser xmlParser = new XMLParser();
+                //XMLNode rootNode = xmlParser.Parse(wwwText);
 
-                //Parse assets
-                XMLNode assetRootNode = rootNode.GetNode("PackConfig>0>Assets>0");
-                XMLNodeList assetList = assetRootNode.GetNodeList("AssetConfig");
+                ////Parse assets
+                //XMLNode assetRootNode = rootNode.GetNode("PackConfig>0>Assets>0");
+                //XMLNodeList assetList = assetRootNode.GetNodeList("AssetConfig");
 
-                for (int i = 0; i < assetList.Count; i++)
-                {
-                    XMLNode assetNode = assetList[i] as XMLNode;
-                    string assetName = assetNode.GetValue("@AssetName");
-                    string bundleName = assetNode.GetValue("@BundleName");
-                    string assetPath = assetNode.GetValue("@AssetPath");
-                    if (!assetToBundleDict.ContainsKey(assetName))
-                    {
-                        AssetToBundleInfo info = new AssetToBundleInfo();
-                        info.assetPath = assetPath;
-                        info.bundleName = bundleName;
-                        assetToBundleDict.Add(assetName, info);
-                    }
+                //for (int i = 0; i < assetList.Count; i++)
+                //{
+                //    XMLNode assetNode = assetList[i] as XMLNode;
+                //    string assetName = assetNode.GetValue("@AssetName");
+                //    string bundleName = assetNode.GetValue("@BundleName");
+                //    string assetPath = assetNode.GetValue("@AssetPath");
+                //    if (!assetToBundleDict.ContainsKey(assetName))
+                //    {
+                //        AssetToBundleInfo info = new AssetToBundleInfo();
+                //        info.assetPath = assetPath;
+                //        info.bundleName = bundleName;
+                //        assetToBundleDict.Add(assetName, info);
+                //    }
 
-                }
+                //}
                 IsConfigReady = true;
 
             };

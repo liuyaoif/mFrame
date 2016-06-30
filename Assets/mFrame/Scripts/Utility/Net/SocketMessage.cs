@@ -1,9 +1,16 @@
-﻿using com.wanmei.mg002.protocol.protobuf;
-using System;
-using UnityEngine;
+﻿using System;
 
 namespace Utility
 {
+    public enum LINK_MSG_CODE
+    {
+
+    }
+    public enum BACKEND_SYSTEM
+    {
+
+    }
+
     public class SocketMessage
     {
         private byte[] m_buffer;
@@ -44,7 +51,7 @@ namespace Utility
 
         public void Pack()
         {
-            byte[] wxBuffer = ProtobufUtility.GetByteFromProtoBuf(m_wxMsg);
+            byte[] wxBuffer = null;// ProtobufUtility.GetByteFromProtoBuf(m_wxMsg);
 
             m_buffer = new byte[1 + 1 + wxBuffer.Length];
 
@@ -69,7 +76,7 @@ namespace Utility
             else
             {
                 m_buffer = cotent;
-                m_wxMsg = (WXMessage)ProtobufUtility.DeserializeProtobuf(m_buffer, typeof(WXMessage));
+                //m_wxMsg = (WXMessage)ProtobufUtility.DeserializeProtobuf(m_buffer, typeof(WXMessage));
                 //Debug.Log("Receiving msg. Id: " + m_wxMsg.msgCode.ToString() + ". size: " + m_buffer.Length);
             }
         }

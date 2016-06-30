@@ -3,7 +3,15 @@ using UnityEngine;
 
 namespace Utility
 {
-    [RequireComponent(typeof(UIPanel))]
+    public class UIPanel:MonoBehaviour
+    {
+        public int depth
+        {
+            set;get;
+        }
+    }
+
+    //[RequireComponent(typeof(UIPanel))]
     public class UIPanelDecorator : Entity
     {
         /// <summary>
@@ -20,6 +28,7 @@ namespace Utility
             get { return m_openType; }
             set { m_openType = value; }
         }
+
         protected UIPanel m_panel;
         protected List<UIPanel> m_childrenPanels;
         protected int m_maxChildDepth;

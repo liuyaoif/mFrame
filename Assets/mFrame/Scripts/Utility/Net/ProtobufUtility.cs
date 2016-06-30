@@ -1,9 +1,9 @@
-using com.wanmei.mg002.protocol.protobuf;
 using System.IO;
 using Utility;
 
 public class ProtobufUtility
 {
+    /*
     private static ProtobufSerializer _serializer = null;
     public static ProtobufSerializer serializer
     {
@@ -89,4 +89,5 @@ public class ProtobufUtility
             return serializer.Deserialize(m, null, type);
         }
     }
+    */
 }

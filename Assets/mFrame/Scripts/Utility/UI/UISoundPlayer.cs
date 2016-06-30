@@ -1,62 +1,76 @@
 ﻿using UnityEngine;
 
-[DisallowMultipleComponent]
-public class UISoundPlayer : MonoBehaviour
+namespace Utility
 {
-    public string soundAssetName;
-
-    void Awake()
+    public class UIButton
     {
-        UIButton button = GetComponent<UIButton>();
-        if (button != null)
-        {
-            EventDelegate.Remove(button.onClick, OnClickButton);
-            EventDelegate.Add(button.onClick, OnClickButton);
-            return;
-        }
-
-        UIEventListener eventListener = GetComponent<UIEventListener>();
-        if (eventListener != null)
-        {
-            eventListener.onClick -= OnClickListener;
-            eventListener.onClick += OnClickListener;
-            return;
-        }
-
-
-        UIEventTrigger trigger = GetComponent<UIEventTrigger>();
-        if (trigger != null)
-        {
-            EventDelegate.Remove(trigger.onClick, OnClickTrigger);
-            EventDelegate.Add(trigger.onClick, OnClickTrigger);
-            return;
-        }
+        public delegate void OnClickEvent();
+        public event OnClickEvent onClick;
     }
 
-    public void OnClickListener(GameObject go)
+    public class UIEventListener : MonoBehaviour
     {
-        PlaySound();
+        public delegate void OnClickEvent();
+        public event OnClickEvent onClick;
     }
 
-    public void OnClickButton()
+    [DisallowMultipleComponent]
+    public class UISoundPlayer : MonoBehaviour
     {
-        PlaySound();
-    }
+        public string soundAssetName;
 
-    public void OnClickTrigger()
-    {
-        PlaySound();
-    }
-
-    private void PlaySound()
-    {
-        if (string.IsNullOrEmpty(soundAssetName))
+        void Awake()
         {
-            SoundManager.Instance.PlaySoundEffect("ClickButton");
+            UIButton button = GetComponent<UIButton>();
+            if (button != null)
+            {
+                button.onClick += OnClickButton;
+                return;
+            }
+
+            UIEventListener eventListener = GetComponent<UIEventListener>();
+            if (eventListener != null)
+            {
+                eventListener.onClick -= OnClickListener;
+                eventListener.onClick += OnClickListener;
+                return;
+            }
+
+
+            //UIEventTrigger trigger = GetComponent<UIEventTrigger>();
+            //if (trigger != null)
+            //{
+            //    EventDelegate.Remove(trigger.onClick, OnClickTrigger);
+            //    EventDelegate.Add(trigger.onClick, OnClickTrigger);
+            //    return;
+            //}
         }
-        else
+
+        public void OnClickListener()
         {
-            SoundManager.Instance.PlaySoundEffect(soundAssetName);
+            PlaySound();
+        }
+
+        public void OnClickButton()
+        {
+            PlaySound();
+        }
+
+        public void OnClickTrigger()
+        {
+            PlaySound();
+        }
+
+        private void PlaySound()
+        {
+            if (string.IsNullOrEmpty(soundAssetName))
+            {
+                SoundManager.Instance.PlaySoundEffect("ClickButton");
+            }
+            else
+            {
+                SoundManager.Instance.PlaySoundEffect(soundAssetName);
+            }
         }
     }
 }

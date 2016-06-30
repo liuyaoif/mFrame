@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System;
 using System.Collections.Generic;
 
 namespace Utility
@@ -77,7 +75,7 @@ namespace Utility
 
         public static AssetType GetTypeOfAsset(UnityEngine.Object asset)
         {
-            AssetType type;
+            AssetType type = AssetType.Invalid;
             if (asset is Texture)
             {
                 type = AssetType.Texture;
@@ -108,12 +106,12 @@ namespace Utility
             }
             else if (asset is GameObject)
             {
-                type = AssetType.GameObject;
-                GameObject go = asset as GameObject;
-                if (go.GetComponent<UIAtlas>())
-                {
-                    type = AssetType.UIAtlas;
-                }
+                //type = AssetType.GameObject;
+                //GameObject go = asset as GameObject;
+                //if (go.GetComponent<UIAtlas>())
+                //{
+                //    type = AssetType.UIAtlas;
+                //}
             }
             else if (asset is Font)
             {

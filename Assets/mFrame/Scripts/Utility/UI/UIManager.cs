@@ -76,13 +76,6 @@ namespace Utility
         public Transform root3D;
         public Camera root3DCamera;
 
-        private VersionPanelDecorator m_versionPanel;
-        private LoadingSceneDecorator m_loadingPanel;
-        private DebugWindowDecorator m_debugWindowPanel;
-        private BlackBackgroundDecorator m_blackBGPanel;
-        private LoadingRotatePanel m_loadingRotatePanel;
-        private BundleLoadingDecorator m_bundleLoadingPanel;
-
         private Dictionary<string, UIPanelDecorator> m_visibleDict = new Dictionary<string, UIPanelDecorator>();
         private Dictionary<string, UIPanelDecorator> m_hideDict = new Dictionary<string, UIPanelDecorator>();
         private Dictionary<string, LoadResourceTask> m_loadingDict = new Dictionary<string, LoadResourceTask>();
@@ -132,7 +125,6 @@ namespace Utility
         {
             UtilTools.SetDontDestroyOnLoad(gameObject);
             //DontDestroyOnLoad(gameObject);
-            UICamera.uiRigidboy = GetComponent<Rigidbody>();
             //uiScreenSize = new Vector2(rootNormal.manualWidth, rootNormal.manualHeight);
             EventManager.Instance.AddEventListener(EventID.ConfigDataReady, OnConfigDataReady);
 
@@ -146,7 +138,7 @@ namespace Utility
 
         private void OnSocketMsgEvent(params object[] param)
         {
-            ShowNetWaitingPanel((bool)param[0]);
+           // ShowNetWaitingPanel((bool)param[0]);
         }
 
         /// <summary>
@@ -298,7 +290,7 @@ namespace Utility
                     info.m_isShowBlackBG = isShowBlackBG;
                     task.userData = info;
                     m_loadingDict.Add(panelName, task);
-                    ShowBundleLoading(true, panelName);
+                    //ShowBundleLoading(true, panelName);
                 }
                 else
                 {
@@ -315,7 +307,7 @@ namespace Utility
         /// <param name="userData"></param>
         private void OnUIBundleLoaded(UnityEngine.Object asset, object userData)
         {
-            ShowBundleLoading(false);
+            //ShowBundleLoading(false);
 
             GameObject uiObj = asset as GameObject;
             UIPanelDecorator panelDecorator = uiObj.GetComponent<UIPanelDecorator>();
@@ -637,22 +629,23 @@ namespace Utility
 
         public bool IsPickUpUIObject(Vector3 mousePos)
         {
-            UICamera.Raycast(mousePos);
-            if (UICamera.lastHit.collider == null)
-            {
-                return false;
-            }
-            else
-            {
-                if (UICamera.lastHit.collider.gameObject.layer == LayerMask.NameToLayer("UI"))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            return false;
+            //UICamera.Raycast(mousePos);
+            //if (UICamera.lastHit.collider == null)
+            //{
+            //    return false;
+            //}
+            //else
+            //{
+            //    if (UICamera.lastHit.collider.gameObject.layer == LayerMask.NameToLayer("UI"))
+            //    {
+            //        return true;
+            //    }
+            //    else
+            //    {
+            //        return false;
+            //    }
+            //}
         }
 
         private string GetPanelName(string rawPanelName)
@@ -668,78 +661,78 @@ namespace Utility
         //加载各种初始化资源
         public void OnAssetsManagerReady()
         {
-            AssetsManagerFor5.Instance.AddAssetTask("VersionPanel.prefab",
-           delegate (UnityEngine.Object asset, object userData)
-           {
-               GameObject go = asset as GameObject;
-               go.transform.SetParentAndScale(rootTopMost.transform, false);
-               m_versionPanel = go.GetComponent<VersionPanelDecorator>();
-               m_versionPanel.SetActive(true);
-           });
+           // AssetsManagerFor5.Instance.AddAssetTask("VersionPanel.prefab",
+           //delegate (UnityEngine.Object asset, object userData)
+           //{
+           //    GameObject go = asset as GameObject;
+           //    go.transform.SetParentAndScale(rootTopMost.transform, false);
+           //    m_versionPanel = go.GetComponent<VersionPanelDecorator>();
+           //    m_versionPanel.SetActive(true);
+           //});
 
-            AssetsManagerFor5.Instance.AddAssetTask("LoadingPanel.prefab",
-                delegate (UnityEngine.Object asset, object userData)
-                {
-                    GameObject go = asset as GameObject;
-                    go.transform.SetParentAndScale(rootNormal.transform, false);
-                    m_loadingPanel = go.GetComponent<LoadingSceneDecorator>();
-                    m_loadingPanel.SetActive(false);
-                });
+           // AssetsManagerFor5.Instance.AddAssetTask("LoadingPanel.prefab",
+           //     delegate (UnityEngine.Object asset, object userData)
+           //     {
+           //         GameObject go = asset as GameObject;
+           //         go.transform.SetParentAndScale(rootNormal.transform, false);
+           //         m_loadingPanel = go.GetComponent<LoadingSceneDecorator>();
+           //         m_loadingPanel.SetActive(false);
+           //     });
 
-            AssetsManagerFor5.Instance.AddAssetTask("DebugWindowPanel.prefab",
-                delegate (UnityEngine.Object asset, object userData)
-                {
-                    GameObject go = asset as GameObject;
-                    go.transform.SetParentAndScale(rootTopMost.transform, false);
-                    m_debugWindowPanel = go.GetComponent<DebugWindowDecorator>();
-                    m_debugWindowPanel.SetActive(false);
-                    LogManager.Instance.showUILogCallBack = m_debugWindowPanel.LogCallBack;
-                });
+           // AssetsManagerFor5.Instance.AddAssetTask("DebugWindowPanel.prefab",
+           //     delegate (UnityEngine.Object asset, object userData)
+           //     {
+           //         GameObject go = asset as GameObject;
+           //         go.transform.SetParentAndScale(rootTopMost.transform, false);
+           //         m_debugWindowPanel = go.GetComponent<DebugWindowDecorator>();
+           //         m_debugWindowPanel.SetActive(false);
+           //         LogManager.Instance.showUILogCallBack = m_debugWindowPanel.LogCallBack;
+           //     });
 
-            AssetsManagerFor5.Instance.AddAssetTask("NoticeBox.prefab",
-                delegate (UnityEngine.Object asset, object userData)
-                {
-                    GameObject go = asset as GameObject;
-                    go.transform.SetParentAndScale(rootTopMost.transform, true);
-                    NoticeBoxManger.Instance.noticePanel = go.GetComponent<NoticePanel>();
-                });
+           // AssetsManagerFor5.Instance.AddAssetTask("NoticeBox.prefab",
+           //     delegate (UnityEngine.Object asset, object userData)
+           //     {
+           //         GameObject go = asset as GameObject;
+           //         go.transform.SetParentAndScale(rootTopMost.transform, true);
+           //         NoticeBoxManger.Instance.noticePanel = go.GetComponent<NoticePanel>();
+           //     });
 
-            AssetsManagerFor5.Instance.AddAssetTask("AwaitingPanel.prefab",
-                delegate (UnityEngine.Object asset, object userData)
-                {
-                    GameObject go = asset as GameObject;
-                    go.transform.SetParentAndScale(rootTopMost.transform, false);
-                    NoticeBoxManger.Instance.awaitingPanel = go.GetComponent<AwaitingPanel>();
-                });
+           // AssetsManagerFor5.Instance.AddAssetTask("AwaitingPanel.prefab",
+           //     delegate (UnityEngine.Object asset, object userData)
+           //     {
+           //         GameObject go = asset as GameObject;
+           //         go.transform.SetParentAndScale(rootTopMost.transform, false);
+           //         NoticeBoxManger.Instance.awaitingPanel = go.GetComponent<AwaitingPanel>();
+           //     });
 
-            AssetsManagerFor5.Instance.AddAssetTask("LoadingRotatePanel.prefab",
-                delegate (UnityEngine.Object asset, object userData)
-                {
-                    GameObject go = asset as GameObject;
-                    go.transform.SetParentAndScale(rootTopMost.transform, false);
-                    m_loadingRotatePanel = go.GetComponent<LoadingRotatePanel>();
-                });
+           // AssetsManagerFor5.Instance.AddAssetTask("LoadingRotatePanel.prefab",
+           //     delegate (UnityEngine.Object asset, object userData)
+           //     {
+           //         GameObject go = asset as GameObject;
+           //         go.transform.SetParentAndScale(rootTopMost.transform, false);
+           //         m_loadingRotatePanel = go.GetComponent<LoadingRotatePanel>();
+           //     });
 
-            AssetsManagerFor5.Instance.AddAssetTask("BlackBackground.prefab",
-                delegate (UnityEngine.Object asset, object userData)
-                {
-                    GameObject go = asset as GameObject;
-                    go.transform.SetParentAndScale(rootNormal.transform, false);
-                    m_blackBGPanel = go.GetComponent<BlackBackgroundDecorator>();
-                });
+           // AssetsManagerFor5.Instance.AddAssetTask("BlackBackground.prefab",
+           //     delegate (UnityEngine.Object asset, object userData)
+           //     {
+           //         GameObject go = asset as GameObject;
+           //         go.transform.SetParentAndScale(rootNormal.transform, false);
+           //         m_blackBGPanel = go.GetComponent<BlackBackgroundDecorator>();
+           //     });
 
-            AssetsManagerFor5.Instance.AddAssetTask("BundleLodingPanel.prefab",
-                delegate (UnityEngine.Object asset, object userData)
-                {
-                    GameObject go = asset as GameObject;
-                    go.transform.SetParentAndScale(rootTopMost.transform, false);
-                    m_bundleLoadingPanel = go.GetComponent<BundleLoadingDecorator>();
-                });
+           // AssetsManagerFor5.Instance.AddAssetTask("BundleLodingPanel.prefab",
+           //     delegate (UnityEngine.Object asset, object userData)
+           //     {
+           //         GameObject go = asset as GameObject;
+           //         go.transform.SetParentAndScale(rootTopMost.transform, false);
+           //         m_bundleLoadingPanel = go.GetComponent<BundleLoadingDecorator>();
+           //     });
         }
 
         public void ShowDebugWindow()
         {
-            m_debugWindowPanel.SetActive(true);
+            //m_debugWindowPanel.SetActive(true);
         }
 
         //进入loading场景，销毁所有缓存的面板
@@ -769,35 +762,36 @@ namespace Utility
 
         public void ShowBlackBackground(bool isShow, UIPanelDecorator panelDecorator = null)
         {
-            if (m_blackBGPanel == null)
-            {
-                return;
-            }
+            //if (m_blackBGPanel == null)
+            //{
+            //    return;
+            //}
 
-            if (isShow && panelDecorator != null)
-            {
-                m_blackBGPanel.SetVisible(true, panelDecorator);
-                m_blackBGPanel.depth = panelDecorator.depth;
-                panelDecorator.depth++;
-            }
-            else
-            {
-                m_blackBGPanel.SetVisible(false, panelDecorator);
-            }
+            //if (isShow && panelDecorator != null)
+            //{
+            //    m_blackBGPanel.SetVisible(true, panelDecorator);
+            //    m_blackBGPanel.depth = panelDecorator.depth;
+            //    panelDecorator.depth++;
+            //}
+            //else
+            //{
+            //    m_blackBGPanel.SetVisible(false, panelDecorator);
+            //}
         }
 
         /// <summary>
         /// widget依附到了UIGrid下，需要调整UIDragScrollView的UIScrollView
         /// </summary>
-        public static void AdapteNewUIGrid(GameObject widget, UIGrid grid)
-        {
-            UIDragScrollView dragComponent = widget.GetComponent<UIDragScrollView>();
-            if (dragComponent != null)
-            {
-                dragComponent.scrollView = grid.GetScrollView();
-            }
-        }
+        //public static void AdapteNewUIGrid(GameObject widget, UIGrid grid)
+        //{
+        //    UIDragScrollView dragComponent = widget.GetComponent<UIDragScrollView>();
+        //    if (dragComponent != null)
+        //    {
+        //        dragComponent.scrollView = grid.GetScrollView();
+        //    }
+        //}
 
+            /*
         /// <summary>
         /// 场景加载UI进度条
         /// </summary>
@@ -840,9 +834,10 @@ namespace Utility
             }
         }
 
-        public BlackBackgroundDecorator GetBlackBackGround()
-        {
-            return m_blackBGPanel;
-        }
+        //public BlackBackgroundDecorator GetBlackBackGround()
+        //{
+        //    return m_blackBGPanel;
+        //}
+        */
     }//UIManager
 }
