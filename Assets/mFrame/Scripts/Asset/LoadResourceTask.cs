@@ -1,34 +1,81 @@
-﻿using mFrame.Log;
-using mFrame.Utility;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace mFrame.Asset
+namespace Utility
 {
     public class LoadResourceTask
     {
         public enum ResourceType
         {
+            /// <summary>
+            /// Unity5的Bundles声明文件
+            /// </summary>
             Manifest,
+
+            /// <summary>
+            /// 资源:Prefab, Texture, ogg...
+            /// </summary>
             Asset,
+
+            /// <summary>
+            /// Bundle:被依赖的bundle
+            /// </summary>
             Bundle,
+
+            /// <summary>
+            /// WWW文本
+            /// </summary>
             WWW,
+
+            /// <summary>
+            /// 场景
+            /// </summary>
             Scene,
+
             Count,
             Invalid,
         }
 
         public enum LoadingState
         {
-            Init,//Task刚刚实例化
-            LoadDep,//加载依赖bundle
-            LoaderCreated,//自己的Loader创建了
-            LoadFinish,//Loader加载完
-            Done,//回调执行
-            Disposed,//清楚后
-            Error,//出错
+            /// <summary>
+            ///Task刚刚实例化
+            /// </summary>
+            Init,
+
+            /// <summary>
+            ///加载依赖bundle
+            /// </summary>
+            LoadDep,
+
+            /// <summary>
+            ///自己的Loader创建了
+            /// </summary>
+            LoaderCreated,
+
+            /// <summary>
+            ///Loader加载完
+            /// </summary>
+            LoadFinish,
+
+            /// <summary>
+            ///回调执行
+            /// </summary>
+            Done,
+
+            /// <summary>
+            ///已经清理了
+            /// </summary>
+            Disposed,
+
+            /// <summary>
+            ///出错
+            /// </summary>
+            Error,
+
             Count,
             Invalid,
         }
@@ -38,16 +85,17 @@ namespace mFrame.Asset
         public delegate void OnWwwLoaded(string wwwText);
         public delegate void OnSceneLoaded(string sceneName);
         public delegate void OnLoadError(string error);
+
         public OnAssetLoaded onAssetReady
         {
             get { return m_onAssetReady; }
         }
-        //private AssetBundleRequest m_assetRequest;
         private event OnBundleLoaded m_onBundleReady;
         private event OnAssetLoaded m_onAssetReady;
         private OnWwwLoaded m_onWwwReady;
         private OnSceneLoaded m_onSceneReady;
         private OnLoadError m_onError;
+
         private AsyncOperation m_loadSceneAsync;
 
         private string m_assetName;
@@ -80,20 +128,21 @@ namespace mFrame.Asset
         public LoadingState curState
         {
             get { return m_curState; }
-            private set { m_curState = value; }
+
+            private set
+            {
+                if (m_curState != value)
+                {
+                    m_curState = value;
+                    OnStateChanged();
+                }
+            }
         }
 
         private AssetBundle m_curBundle = null;
         public AssetBundle curBundle
         {
             get { return m_curBundle; }
-        }
-
-        private string m_wwwText = null;
-
-        public string wwwText
-        {
-            get { return m_wwwText; }
         }
 
         public string assetName
@@ -138,9 +187,16 @@ namespace mFrame.Asset
             set { m_onSceneReady = value; }
         }
 
-        private bool m_isPrefab = false;//true:是prefab类型的Asset;false:是纹理、音效类型的Asset
+        /// <summary>
+        ///true:是prefab类型的Asset;false:是纹理、音效类型的Asset
+        /// </summary>
+        private bool m_isPrefab = false;
 
-        private bool m_allowMultiPrefabInstances = false;//允许这个Task产生多个Asset的实例，必然是m_isPrefab为true
+        private bool m_allowMultiPrefabInstances = false;
+
+        /// <summary>
+        /// 允许这个Task产生多个Asset的实例，必然是m_isPrefab为true
+        /// </summary>
         public bool allowMultiPrefabInstances
         {
             get { return m_allowMultiPrefabInstances; }
@@ -180,6 +236,15 @@ namespace mFrame.Asset
             Init();
         }
 
+#if UNITY_EDITOR
+        /// <summary>
+        /// EDITOR用
+        /// </summary>
+        public LoadResourceTask()
+        {
+        }
+#endif
+
         //WWW
         public LoadResourceTask(string fileName, ResourceType type)
         {
@@ -200,7 +265,7 @@ namespace mFrame.Asset
                     curState = LoadingState.LoadFinish;
                     return;
                 }
-                string[] dependencies = AssetsManager.Instance.GetBundleDependencies(m_bundleName);
+                string[] dependencies = AssetsManagerFor5.Instance.GetBundleDependencies(m_bundleName);
                 if (dependencies != null && dependencies.Length > 0)
                 {
                     //Load dependences.
@@ -208,119 +273,143 @@ namespace mFrame.Asset
                 }
                 else
                 {
-                    string url = UtilTools.CombineString(AssetsManager.Instance.rootBundleURL, m_bundleName);
-                    m_loader = AssetsManager.CreateWWW(url);
+                    string url = UtilTools.CombineString(AssetsManagerFor5.Instance.rootBundleURL, m_bundleName);
+                    m_loader = AssetsManagerFor5.CreateWWW(url);
                     curState = LoadingState.LoaderCreated;
                 }
             }
             else if (m_curResourceType == ResourceType.Manifest)//Manifest
             {
-                string url = UtilTools.CombineString(AssetsManager.Instance.rootBundleURL, m_bundleName);
-                m_loader = AssetsManager.CreateWWW(url);
+                string url = UtilTools.CombineString(AssetsManagerFor5.Instance.rootBundleURL, m_bundleName);
+                m_loader = AssetsManagerFor5.CreateWWW(url);
                 curState = LoadingState.LoaderCreated;
             }
             else//WWW
             {
                 string url = m_bundleName;
-                m_loader = AssetsManager.CreateWWW(url);
+                m_loader = AssetsManagerFor5.CreateWWW(url);
                 curState = LoadingState.LoaderCreated;
             }
         }
 
-        public void UpdateLoading()
+        private void OnStateChanged()
         {
-            if (!IsEnabled)
-            {
-                return;
-            }
-
             switch (curState)
             {
-                case LoadingState.Init:
-                    break;
-
-                case LoadingState.LoadDep:
+                case LoadingState.Error:
                     {
-                        CheckDepBundles();
+                        if (m_onError != null)
+                        {
+                            m_onError(m_loader.error);
+                        }
+                        LogManager.Instance.LogError(m_loader.error);
+                        ClearLoader();
+                        AssetsManagerFor5.Instance.OnTaskError(this);
                     }
                     break;
 
                 case LoadingState.LoaderCreated:
                     {
-                        CheckLoader();
+                        AssetsManagerFor5.Instance.StartCoroutine(Loading());
                     }
                     break;
 
-                case LoadingState.LoadFinish:
+                case LoadingState.Done:
                     {
-                        if (ResourceType.Manifest == m_curResourceType)
-                        {
-                            if (m_onBundleReady != null)
-                            {
-                                m_onBundleReady(curBundle);
-                            }
-                            curState = LoadingState.Done;
-                        }
-                        else if (ResourceType.WWW == m_curResourceType)
-                        {
-                            if (m_onWwwReady != null)
-                            {
-                                m_onWwwReady(m_wwwText);
-                            }
-                            curState = LoadingState.Done;
-                        }
-                        if (ResourceType.Bundle == m_curResourceType)
-                        {
-                            TouchAllDepBundles();
-                            if (m_onBundleReady != null)
-                            {
-                                m_onBundleReady(curBundle);
-                            }
-                            RemoveAllDepBundles();
-                            curState = LoadingState.Done;
-                        }
-                        else if (ResourceType.Asset == m_curResourceType)
-                        {
-                            TouchAllDepBundles();
-                            CallAssetReady();
-                            RemoveAllDepBundles();
-                            curState = LoadingState.Done;
-                        }
-                        else if (ResourceType.Scene == m_curResourceType)
-                        {
-                            TouchAllDepBundles();
+                        AssetsManagerFor5.Instance.OnTaskDone(this);
+                    }
+                    break;
+            }
+        }
 
+        private IEnumerator Loading()
+        {
+            //未启动
+            if (!IsEnabled)
+            {
+                yield return 0;
+            }
 
-                            if (m_loadSceneAsync == null)
-                            {
-                                m_loadSceneAsync = SceneManager.LoadSceneAsync(m_assetName.Replace(".unity", ""));
-                            }
-                            else
-                            {
-                                if (m_loadSceneAsync.isDone)
-                                {
-                                    m_onSceneReady(m_assetName.Replace(".unity", ""));
-                                    RestoreSkyBoxForScene();
-                                    RemoveAllDepBundles();
-                                    if (curBundle != null)
-                                        curBundle.Unload(false);
-                                    curState = LoadingState.Done;
-                                }
-                            }
+            //加载中
+            while (!m_loader.isDone)
+            {
+                m_progress = m_loader.progress;
+                yield return 0;
+            }
+
+            //加载错误
+            if (m_loader.error != null)
+            {
+                curState = LoadingState.Error;
+                yield return 0;
+            }
+
+            //加载完了
+            m_curBundle = m_loader.assetBundle;
+            switch (m_curResourceType)
+            {
+                case ResourceType.WWW:
+                    {
+                        if (m_onWwwReady != null)
+                        {
+                            m_onWwwReady(m_loader.text);
                         }
                     }
                     break;
 
-                case LoadingState.Error:
+                case ResourceType.Manifest:
                     {
-                        LogManager.Instance.LogError(m_loader.error);
-                        if (m_onError != null)
+                        if (m_onBundleReady != null)
                         {
-                            m_onError(m_loader.error);
+                            m_onBundleReady(curBundle);
+                        }
+                    }
+                    break;
+
+                case ResourceType.Bundle:
+                    {
+                        TouchAllDepBundles();
+                        if (m_onBundleReady != null)
+                        {
+                            m_onBundleReady(curBundle);
+                        }
+                        RemoveAllDepBundles();
+                    }
+                    break;
+
+                case ResourceType.Asset:
+                    {
+                        TouchAllDepBundles();
+                        CallAssetReady();
+                        RemoveAllDepBundles();
+                    }
+                    break;
+
+                case ResourceType.Scene:
+                    {
+                        TouchAllDepBundles();
+
+                        if (m_loadSceneAsync == null)
+                        {
+                            m_loadSceneAsync = SceneManager.LoadSceneAsync(m_assetName.Replace(".unity", ""));
+                        }
+
+                        while (!m_loadSceneAsync.isDone)
+                        {
+                            yield return 0;
+                        }
+
+                        m_onSceneReady(m_assetName.Replace(".unity", ""));
+                        RestoreSkyBoxForScene();
+                        RemoveAllDepBundles();
+                        if (curBundle != null)
+                        {
+                            curBundle.Unload(false);
                         }
                     }
                     break;
             }
+            curState = LoadingState.Done;
         }
 
         public bool IsError()
@@ -374,7 +463,7 @@ namespace mFrame.Asset
             for (int i = 0; i < dependencies.Length; i++)
             {
                 string depBundleName = dependencies[i];
-                LoadResourceTask task = AssetsManager.Instance.AddBundleTask(depBundleName, null, null, false);
+                LoadResourceTask task = AssetsManagerFor5.Instance.AddBundleTask(depBundleName, null, null, false);
                 task.AddBundleOwner(this.m_bundleName);
                 m_dependenceTasks.Add(depBundleName);
             }
@@ -385,7 +474,7 @@ namespace mFrame.Asset
         {
         }
 
-        private bool CheckDepBundles()
+        public bool CheckDepBundles()
         {
             int doneBundleCount = 0;
             bool ret = false;
@@ -400,7 +489,7 @@ namespace mFrame.Asset
                 for (int i = 0; i < m_dependenceTasks.Count; i++)
                 {
                     string depTaskName = m_dependenceTasks[i];
-                    LoadResourceTask depTask = AssetsManager.Instance.GetBundleTask(depTaskName);
+                    LoadResourceTask depTask = AssetsManagerFor5.Instance.GetBundleTask(depTaskName);
                     if (depTask != null && !depTask.IsDone())
                     {
                         ret = false;
@@ -412,35 +501,12 @@ namespace mFrame.Asset
             //All dependence ready.
             if (ret && m_loader == null)
             {
-                string url = UtilTools.CombineString(AssetsManager.Instance.rootBundleURL, m_bundleName);
-                m_loader = AssetsManager.CreateWWW(url);
+                string url = UtilTools.CombineString(AssetsManagerFor5.Instance.rootBundleURL, m_bundleName);
+                m_loader = AssetsManagerFor5.CreateWWW(url);
                 curState = LoadingState.LoaderCreated;
             }
             UpdateProgress(doneBundleCount);
             return ret;
-        }
-
-        private void CheckLoader()
-        {
-            if (m_loader.error != null)
-            {
-                curState = LoadingState.Error;
-                ClearLoader();
-            }
-            else if (m_loader.isDone)
-            {
-                if (m_curResourceType == ResourceType.WWW)
-                {
-                    m_wwwText = m_loader.text;
-                }
-                else
-                {
-                    m_curBundle = m_loader.assetBundle;
-                }
-                curState = LoadingState.LoadFinish;
-                ClearLoader();
-            }
-            UpdateProgress(0);
         }
 
         private void ClearLoader()
@@ -458,7 +524,7 @@ namespace mFrame.Asset
             {
                 for (int i = 0; i < m_dependenceTasks.Count; i++)
                 {
-                    LoadResourceTask depTask = AssetsManager.Instance.GetBundleTask(m_dependenceTasks[i]);
+                    LoadResourceTask depTask = AssetsManagerFor5.Instance.GetBundleTask(m_dependenceTasks[i]);
                     AssetBundle bundle = depTask.curBundle;
                     bundle = null;
                 }
@@ -476,7 +542,7 @@ namespace mFrame.Asset
             {
                 for (int i = 0; i < m_dependenceTasks.Count; i++)
                 {
-                    LoadResourceTask depTask = AssetsManager.Instance.GetBundleTask(m_dependenceTasks[i]);
+                    LoadResourceTask depTask = AssetsManagerFor5.Instance.GetBundleTask(m_dependenceTasks[i]);
                     depTask.RemoveBundleOwner(this.m_bundleName);
                     depTask.RemoveAllDepBundles();
                 }
@@ -541,6 +607,12 @@ namespace mFrame.Asset
             if (IsDone())
             {
                 curState = LoadingState.LoadFinish;
+
+                //延迟1帧调用.当前帧后面还要设置userData
+                TimerManager.Instance.AddTimer(0.01f,
+                    CallAssetReady);
+
+                //CallAssetReady();
             }
         }
 

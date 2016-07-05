@@ -1,0 +1,38 @@
+
+option java_generic_services = true;
+option java_package = "com.wuxia.rpg.tools.protobuf";
+option java_outer_classname = "LoginMessage";
+
+message LoginRequest {
+	required string user = 1;
+    optional string password = 2;
+    optional string platId = 3;
+    extensions 100 to 999;
+}
+
+message LoginResponse {
+	required int32 result = 1;
+    optional AccountInfo accountInfo = 2;
+    extensions 100 to 999; 
+}
+
+message AccountInfo {
+	required string accountId = 1;
+	//...
+	extensions 100 to 999;
+}
+
+message LogoutRequest {
+	required string user = 1;
+    extensions 100 to 999;
+}
+
+message LogoutResponse {
+	required int32 result = 1;
+    extensions 100 to 999;
+}
+
+service BlockingLoginServerService {
+    rpc onLoginRequest(LoginRequest) returns (LoginResponse);
+    rpc onLogoutRequest(LogoutRequest) returns (LogoutResponse);
+}

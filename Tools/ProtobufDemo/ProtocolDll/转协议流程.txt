@@ -1,0 +1,7 @@
+1.把所有的*.proto文件放在当前目录下。
+2.把所有要转换的*.proto文件，写入ProtoGen.bat的protoFiles中。
+3.运行ProtoGen.bat。
+4.MonoDeveloper打开ProtocolDll.sln
+5.Build->Rebuild All，注意选择Release。会在bin\Release下产生ProtocolDll.dll。
+6.运行ProtoComplie.bat。
+7.结束。
