@@ -23,9 +23,7 @@ namespace mFrame.Asset
         private AssetBundleManifest assetBundleManifest = null;
         private List<LoadResourceTask> bundleTaskList = new List<LoadResourceTask>();
         private Dictionary<string, LoadResourceTask> bundleTaskDict = new Dictionary<string, LoadResourceTask>();
-        //private List<LoadResourceTask> lastingBundleTaskList = new List<LoadResourceTask>();
         private List<LoadResourceTask> removeList = new List<LoadResourceTask>();
-        //private Dictionary<string, string> assetToBundleDict = new Dictionary<string, string>();//key: asset propName; value: bundle propName.
         private Dictionary<string, AssetToBundleInfo> assetToBundleDict = new Dictionary<string, AssetToBundleInfo>();
         private Action onAssetsManagerReady;
         private bool isConfigReady = false;
@@ -148,7 +146,7 @@ namespace mFrame.Asset
                 //XMLParser xmlParser = new XMLParser();
                 //XMLNode rootNode = xmlParser.Parse(wwwText);
 
-                ////Parse assets
+                //Parse assets
                 //XMLNode assetRootNode = rootNode.GetNode("PackConfig>0>Assets>0");
                 //XMLNodeList assetList = assetRootNode.GetNodeList("AssetConfig");
 
@@ -244,7 +242,8 @@ namespace mFrame.Asset
             }
 
             AssetToBundleInfo assetInfo = assetToBundleDict[assetName];
-            LoadResourceTask task = new LoadResourceTask(assetName);
+            LoadResourceTask task = new LoadResourceTask();
+            task.assetName = assetName;
             task.AddAssetReadyCallback(onAssetReady);
             TimerManager.Instance.AddTimer(0.01f, delegate ()
             {
@@ -307,6 +306,19 @@ namespace mFrame.Asset
                         LoadResourceTask.OnSceneLoaded onSceneReady,
             LoadResourceTask.OnLoadError onError = null)
         {
+            LoadResourceTask task = null;
+
+#if UNITY_EDITOR
+            if (!GlobalConfigManager.Instance.isUseBundle)//不使用bundle加载场景
+            {
+                SceneManager.LoadScene(sceneName.Replace(".unity", ""));
+                task = new LoadResourceTask();
+                task.OnSceneReady = onSceneReady;
+                onSceneReady(sceneName);
+                return task;
+            }
+#endif
+
             if (!assetToBundleDict.ContainsKey(sceneName))
             {
                 if (onError != null)
@@ -320,19 +332,8 @@ namespace mFrame.Asset
             }
 
             AssetToBundleInfo bundleInfo = assetToBundleDict[sceneName];
-            LoadResourceTask task = null;
-            //if (GlobalConfigManager.Instance.isUseBundle)
-            //{
             task = AddBundleTask(sceneName, bundleInfo.bundleName, LoadResourceTask.ResourceType.Scene, null, onError);
             task.OnSceneReady = onSceneReady;
-            //}
-            //else
-            //{
-            //    task = new LoadResourceTask(sceneName);
-            //    SceneManager.LoadSceneAsync(sceneName.Split('.')[0]);
-            //    task.OnSceneReady = onSceneReady;
-            //}
-
             return task;
         }
 
@@ -454,73 +455,38 @@ namespace mFrame.Asset
 
         public static WWW CreateWWW(string url)
         {
-            // #if UNITY_EDITOR
-            //             WWW www = new WWW(url);
-            // #else
-            //             WWW www = WWW.LoadFromCacheOrDownload(url, 1);
-            // #endif
             return new WWW(url);
         }
 
-        //         public static WWW CreateWWW(string url, Hash128 hash, uint crc)
-        //         {
-        // #if UNITY_EDITOR
-        //             WWW www = new WWW(url);
-        // #else
-        //             WWW www = WWW.LoadFromCacheOrDownload(url, hash, crc);
-        // #endif
-        //             return www;
-        //         }
+        public void OnTaskError(LoadResourceTask task)
+        {
+            if (!task.IsError())
+            {
+                return;
+            }
+            RemoveBundleTask(task.bundleName);
+        }
 
-        //         private IEnumerator DoWWWAsyncLoad(string url, LoadResourceTask.OnWwwLoaded callBack)
-        //         {
-        //             WWW www = CreateWWW(url);
-        //
-        //             while (!www.isDone)
-        //             {
-        //                 yield return www;
-        //             }
-        //
-        //             if (www.error != null)
-        //             {
-        //                 LogManager.Instance.Log(www.url + "Error");
-        //             }
-        //
-        //             callBack(www);
-        //             www.Dispose();
-        //             www = null;
-        //         }
+        public void OnTaskDone(LoadResourceTask task)
+        {
+            if (task.IsDone())
+            {
+                if (!task.HasOwner())
+                {
+                    RemoveBundleTask(task.bundleName);
+                }
+            }
+        }
 
         protected override void LogicUpdate()
         {
             for (int i = 0; i < bundleTaskList.Count; i++)
             {
                 LoadResourceTask task = bundleTaskList[i];
-
-                if (task.IsError())
+                if (task.curState == LoadResourceTask.LoadingState.LoadDep)
                 {
-                    removeList.Add(task);
-                    continue;
+                    task.CheckDepBundles();
                 }
-
-                if (task.IsDone())
-                {
-                    if (!task.HasOwner())
-                    {
-                        removeList.Add(task);
-                    }
-                }
-
-                task.UpdateLoading();
-            }
-
-            if (removeList.Count > 0)
-            {
-                for (int i = 0; i < removeList.Count; i++)
-                {
-                    RemoveBundleTask(removeList[i].bundleName);
-                }
-                removeList.Clear();
             }
         }
 
@@ -586,6 +552,7 @@ namespace mFrame.Asset
         {
             return new LoadResourceTaskGroup(taskList);
         }
+
         public void DeleteObject(UnityEngine.Object obj)
         {
             GameObject.DestroyImmediate(obj);

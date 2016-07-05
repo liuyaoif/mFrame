@@ -1,10 +1,13 @@
-﻿using System;
+﻿using mFrame.Log;
+using mFrame.Timing;
+using mFrame.Utility;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Utility
+namespace mFrame.Asset
 {
     public class LoadResourceTask
     {
@@ -265,7 +268,7 @@ namespace Utility
                     curState = LoadingState.LoadFinish;
                     return;
                 }
-                string[] dependencies = AssetsManagerFor5.Instance.GetBundleDependencies(m_bundleName);
+                string[] dependencies = AssetsManager.Instance.GetBundleDependencies(m_bundleName);
                 if (dependencies != null && dependencies.Length > 0)
                 {
                     //Load dependences.
@@ -273,21 +276,21 @@ namespace Utility
                 }
                 else
                 {
-                    string url = UtilTools.CombineString(AssetsManagerFor5.Instance.rootBundleURL, m_bundleName);
-                    m_loader = AssetsManagerFor5.CreateWWW(url);
+                    string url = UtilTools.CombineString(AssetsManager.Instance.rootBundleURL, m_bundleName);
+                    m_loader = AssetsManager.CreateWWW(url);
                     curState = LoadingState.LoaderCreated;
                 }
             }
             else if (m_curResourceType == ResourceType.Manifest)//Manifest
             {
-                string url = UtilTools.CombineString(AssetsManagerFor5.Instance.rootBundleURL, m_bundleName);
-                m_loader = AssetsManagerFor5.CreateWWW(url);
+                string url = UtilTools.CombineString(AssetsManager.Instance.rootBundleURL, m_bundleName);
+                m_loader = AssetsManager.CreateWWW(url);
                 curState = LoadingState.LoaderCreated;
             }
             else//WWW
             {
                 string url = m_bundleName;
-                m_loader = AssetsManagerFor5.CreateWWW(url);
+                m_loader = AssetsManager.CreateWWW(url);
                 curState = LoadingState.LoaderCreated;
             }
         }
@@ -304,19 +307,19 @@ namespace Utility
                         }
                         LogManager.Instance.LogError(m_loader.error);
                         ClearLoader();
-                        AssetsManagerFor5.Instance.OnTaskError(this);
+                        AssetsManager.Instance.OnTaskError(this);
                     }
                     break;
 
                 case LoadingState.LoaderCreated:
                     {
-                        AssetsManagerFor5.Instance.StartCoroutine(Loading());
+                        AssetsManager.Instance.StartCoroutine(Loading());
                     }
                     break;
 
                 case LoadingState.Done:
                     {
-                        AssetsManagerFor5.Instance.OnTaskDone(this);
+                        AssetsManager.Instance.OnTaskDone(this);
                     }
                     break;
             }
@@ -463,7 +466,7 @@ namespace Utility
             for (int i = 0; i < dependencies.Length; i++)
             {
                 string depBundleName = dependencies[i];
-                LoadResourceTask task = AssetsManagerFor5.Instance.AddBundleTask(depBundleName, null, null, false);
+                LoadResourceTask task = AssetsManager.Instance.AddBundleTask(depBundleName, null, null, false);
                 task.AddBundleOwner(this.m_bundleName);
                 m_dependenceTasks.Add(depBundleName);
             }
@@ -489,7 +492,7 @@ namespace Utility
                 for (int i = 0; i < m_dependenceTasks.Count; i++)
                 {
                     string depTaskName = m_dependenceTasks[i];
-                    LoadResourceTask depTask = AssetsManagerFor5.Instance.GetBundleTask(depTaskName);
+                    LoadResourceTask depTask = AssetsManager.Instance.GetBundleTask(depTaskName);
                     if (depTask != null && !depTask.IsDone())
                     {
                         ret = false;
@@ -501,8 +504,8 @@ namespace Utility
             //All dependence ready.
             if (ret && m_loader == null)
             {
-                string url = UtilTools.CombineString(AssetsManagerFor5.Instance.rootBundleURL, m_bundleName);
-                m_loader = AssetsManagerFor5.CreateWWW(url);
+                string url = UtilTools.CombineString(AssetsManager.Instance.rootBundleURL, m_bundleName);
+                m_loader = AssetsManager.CreateWWW(url);
                 curState = LoadingState.LoaderCreated;
             }
             UpdateProgress(doneBundleCount);
@@ -524,7 +527,7 @@ namespace Utility
             {
                 for (int i = 0; i < m_dependenceTasks.Count; i++)
                 {
-                    LoadResourceTask depTask = AssetsManagerFor5.Instance.GetBundleTask(m_dependenceTasks[i]);
+                    LoadResourceTask depTask = AssetsManager.Instance.GetBundleTask(m_dependenceTasks[i]);
                     AssetBundle bundle = depTask.curBundle;
                     bundle = null;
                 }
@@ -542,7 +545,7 @@ namespace Utility
             {
                 for (int i = 0; i < m_dependenceTasks.Count; i++)
                 {
-                    LoadResourceTask depTask = AssetsManagerFor5.Instance.GetBundleTask(m_dependenceTasks[i]);
+                    LoadResourceTask depTask = AssetsManager.Instance.GetBundleTask(m_dependenceTasks[i]);
                     depTask.RemoveBundleOwner(this.m_bundleName);
                     depTask.RemoveAllDepBundles();
                 }
